@@ -5,6 +5,13 @@ ch = "check --features esp-hal/embassy-time-timg0"
 [target.riscv32imc-unknown-none-elf]
 runner = "espflash flash --monitor"
 
+[target.xtensa-esp32-none-elf]
+runner = "espflash flash --monitor --chip esp32 --baud 1000000"
+
+[lib]
+test = false
+bench = false
+
 
 [env]
 ESP_LOG="INFO"
@@ -16,7 +23,8 @@ rustflags = [
   "-C", "force-frame-pointers",
 ]
 
-target = "riscv32imc-unknown-none-elf"
+# target = "riscv32imc-unknown-none-elf"
+target = "xtensa-esp32-none-elf"
 
 [profile.dev]
 opt-level = "s"

@@ -30,7 +30,12 @@ async fn main(_spawner: Spawner) -> ! {
     let rmt = Rmt::new(peripherals.RMT, Rate::from_mhz(80_u32))
         .unwrap()
         .into_async();
-    let mut ow = OneWire::new(rmt.channel0, rmt.channel2, peripherals.GPIO26).unwrap();
+
+    #[cfg(target_arch = "riscv32")]
+    let gpio = peripherals.GPIO6;
+    #[cfg(not(target_arch = "riscv32"))]
+    let gpio = peripherals.GPIO26;
+    let mut ow = OneWire::new(rmt.channel0, rmt.channel2, gpio).unwrap();
 
     loop {
         println!("Resetting the bus");
