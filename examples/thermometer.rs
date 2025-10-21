@@ -4,15 +4,22 @@ use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
 use esp_hal::{clock::CpuClock, rmt::*, time::Rate, timer::systimer::SystemTimer};
+use esp_hal::interrupt::software::SoftwareInterruptControl;
+use esp_hal::timer::timg::TimerGroup;
 use esp_hal_rmt_onewire::*;
 use esp_println::println;
 
-#[esp_hal_embassy::main]
+esp_bootloader_esp_idf::esp_app_desc!();
+
+
+#[esp_rtos::main]
 async fn main(_spawner: Spawner) -> ! {
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
     let peripherals = esp_hal::init(config);
     let timer0 = SystemTimer::new(peripherals.SYSTIMER);
-    esp_hal_embassy::init(timer0.alarm0);
+    let software_interrupt = SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
+    let timg0 = TimerGroup::new(peripherals.TIMG0);
+    esp_rtos::start(timg0.timer0, software_interrupt.software_interrupt0);
 
     let rmt = Rmt::new(peripherals.RMT, Rate::from_mhz(80_u32))
         .unwrap()
@@ -50,7 +57,7 @@ impl core::fmt::Display for Temperature {
     }
 }
 
-pub async fn search<'a, CFG: OneWireConfig>(ow: &mut OneWire<'a, CFG>) -> () {
+pub async fn search<'a>(ow: &mut OneWire<'a>) -> () {
     let mut search = Search::new();
     loop {
         match search.next(ow).await {
