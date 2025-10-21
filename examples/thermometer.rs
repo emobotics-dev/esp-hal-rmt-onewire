@@ -3,7 +3,8 @@
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
-use esp_hal::{clock::CpuClock, rmt::*, time::Rate, timer::systimer::SystemTimer};
+use esp_hal::{clock::CpuClock, rmt::*, time::Rate};
+#[cfg(target_arch = "riscv32")]
 use esp_hal::interrupt::software::SoftwareInterruptControl;
 use esp_hal::timer::timg::TimerGroup;
 use esp_hal_rmt_onewire::*;
@@ -16,15 +17,20 @@ esp_bootloader_esp_idf::esp_app_desc!();
 async fn main(_spawner: Spawner) -> ! {
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
     let peripherals = esp_hal::init(config);
-    let timer0 = SystemTimer::new(peripherals.SYSTIMER);
-    let software_interrupt = SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
+
+    #[cfg(target_arch = "riscv32")]
+    let sw_int = SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
     let timg0 = TimerGroup::new(peripherals.TIMG0);
-    esp_rtos::start(timg0.timer0, software_interrupt.software_interrupt0);
+    esp_rtos::start(
+        timg0.timer0,
+        #[cfg(target_arch = "riscv32")]
+        sw_int.software_interrupt0,
+    );
 
     let rmt = Rmt::new(peripherals.RMT, Rate::from_mhz(80_u32))
         .unwrap()
         .into_async();
-    let mut ow = OneWire::new(rmt.channel0, rmt.channel2, peripherals.GPIO6).unwrap();
+    let mut ow = OneWire::new(rmt.channel0, rmt.channel2, peripherals.GPIO26).unwrap();
 
     loop {
         println!("Resetting the bus");
