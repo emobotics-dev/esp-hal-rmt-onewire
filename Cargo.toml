@@ -27,7 +27,10 @@ esp32c3 = [
 embassy-futures = { version = "0.1.1" }
 esp-hal = { version = "1.0.0-rc.1", features = [ "unstable"] }
 esp-bootloader-esp-idf = { version = "0.3.0" }
+static_cell = "2.1.1"
+critical-section = "1.2.0"
 esp-backtrace = { version= "0.18.0", features=["println", "panic-handler"] }
+embassy-sync = "0.7.2"
 
 [dev-dependencies]
 embassy-executor = { version= "0.9.1" }
