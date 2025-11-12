@@ -2,7 +2,7 @@
 #![allow(incomplete_features)]
 #![feature(generic_const_exprs)]
 
-use core::marker::PhantomData;
+use core::fmt::LowerHex;
 use embassy_futures::select::*;
 use esp_hal::{
     gpio::{
@@ -217,8 +217,14 @@ impl From<esp_hal::rmt::Error> for Error {
     }
 }
 
-#[derive(PartialEq, Eq, Clone, Copy)]
+#[derive(PartialEq, Eq, Clone, Copy, Hash)]
 pub struct Address(pub u64);
+
+impl LowerHex for Address {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        self.0.fmt(f)
+    }
+}
 
 impl core::fmt::Debug for Address {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
