@@ -29,7 +29,7 @@ impl<'a> OneWire<'a>
         Txc: TxChannelCreator<'a, Async>,
         Rxc: RxChannelCreator<'a, Async>,
         P: Pin + 'a,
-        >(
+    >(
         txcc: Txc,
         rxcc: Rxc,
         pin: P,
@@ -318,7 +318,11 @@ impl Search {
                             last_zero = Some(id_bit_number);
                             false
                         } else {
-                            self.address & (1 << id_bit_number) != 0
+                            let prev_bit = self.address & (1 << id_bit_number) != 0;
+                            if !prev_bit {
+                                last_zero = Some(id_bit_number);
+                            }
+                            prev_bit
                         }
                     }
                 };
