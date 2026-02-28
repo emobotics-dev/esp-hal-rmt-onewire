@@ -13,14 +13,12 @@ esp32 = [
     "esp-bootloader-esp-idf/esp32",
     "esp-backtrace/esp32",
     "esp-println/esp32",
-    "esp-rtos/esp32",
 ]
 esp32c3 = [
     "esp-hal/esp32c3",
     "esp-bootloader-esp-idf/esp32c3",
     "esp-backtrace/esp32c3",
     "esp-println/esp32c3",
-    "esp-rtos/esp32c3",
 ]
 
 [dependencies]
@@ -39,7 +37,7 @@ esp-backtrace       = { path = "../esp-hal/esp-backtrace", features = ["esp32", 
 esp-println         = { path = "../esp-hal/esp-println", features = ["esp32", "timestamp", "critical-section", "uart"], default-features = false}
 esp-hal             = { path = "../esp-hal/esp-hal", features = ["esp32","unstable"] }
 embassy-time = "0.5.0"
-esp-rtos = { version = "0.1.0", features = ["embassy"] }
+esp-rtos = { version = "0.2.0", path = "../esp-hal/esp-rtos", features = ["embassy"] }
 fixed = "1.28.0"
 
 [package.metadata.docs.rs]
