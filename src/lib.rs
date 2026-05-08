@@ -10,7 +10,7 @@ use esp_hal::{
         Pull,
     },
     rmt::{
-        Channel, PulseCode, RxChannelConfig, RxChannelCreator,
+        Channel, ConfigError, PulseCode, RxChannelConfig, RxChannelCreator,
         TxChannelConfig, TxChannelCreator,
     },
     Async,
@@ -56,11 +56,13 @@ impl<'a> OneWire<'a>
         let (input, output) = pin.split();
 
         let tx = txcc
-            .configure_tx(output.with_output_inverter(true), tx_config)
-            .map_err(Error::SendError)?;
+            .configure_tx(&tx_config)
+            .map_err(Error::ConfigError)?
+            .with_pin(output.with_output_inverter(true));
         let rx = rxcc
-            .configure_rx(input.clone().with_input_inverter(true), rx_config)
-            .map_err(Error::ReceiveError)?;
+            .configure_rx(&rx_config)
+            .map_err(Error::ConfigError)?
+            .with_pin(input.clone().with_input_inverter(true));
 
         Ok(OneWire {
             rx,
@@ -209,6 +211,7 @@ pub enum Error {
     ReceiveTimedOut,
     ReceiveError(esp_hal::rmt::Error),
     SendError(esp_hal::rmt::Error),
+    ConfigError(ConfigError),
 }
 
 impl From<esp_hal::rmt::Error> for Error {
